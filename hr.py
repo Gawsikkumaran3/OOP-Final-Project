@@ -64,50 +64,46 @@ class CommissionPolicy(SalaryPolicy):
 class PayrollSystem:
     """
     PayrollSystem class stores the salary policy data of the employee's based on the employee ID,
-    and has two functions 'get_policy' to get the policy details of the employee based on emplpoyee ID input,
+    and wraps two functions 'get_policy' to get the policy details of the employee based on emplpoyee ID input,
     and 'calculate_payroll' to calculate the employee's payroll and prints the details.
     
     """
 
-    def __init__(self):
+    def __init__(self,func=None):
 
         self._employee_policies = {
+
             1: SalaryPolicy(3000),
             2: SalaryPolicy(1500),
             3: CommissionPolicy(1000, 100),
             4: HourlyPolicy(15),
             5: HourlyPolicy(9)
         }
+        self.func = func
 
-    def get_policy(self,employee_id):
+    def __call__(self, *args, **kwargs):
+        return self.func(*args,**kwargs)
 
-        policy = self._employee_policies.get(employee_id)
-        if not policy:
-            raise ValueError(policy)
+@PayrollSystem
+def get_policy(obj,employee_id):
+    policy = obj._employee_policies.get(employee_id)
+    if not policy:
+        raise ValueError(employee_id)
+    else:
         return policy
 
-    def calculate_payroll(self,employees):
-        print("Calculating Payroll")
-        print("===================")
-        for employee in employees:
-            print(f'Payroll for : {employee.id} - {employee.name}')
-            print(f'- Check amount : {employee.calculate_payroll()}')
-            if employee.address:
-                print(f'- Sent to : {employee.address}')
-            print(" ")
+@PayrollSystem
+def calculate_payroll(obj,employees):
+    from employee import calculate_payroll
+    print("Calculating payroll of the employees")
+    print('==============================')
 
-payroll_system = PayrollSystem()
-
-#get_policy function calls the get_policy function of the PayrollSystem class
-def get_policy(employee_id):
-
-    return payroll_system.get_policy(employee_id)
-
-#calculate_payroll function calls the calculate_payroll function of the PayrollSystem class
-def calculate_payroll(employees):
-
-    return payroll_system.calculate_payroll(employees)
-
-
-
+    for employee in employees:
+        print("")
+        print(f"Payroll for {employee.id} - {employee.name}")
+        print(f"Check of : {calculate_payroll(employee)}")
+        if employee.address:
+            print("Sent to")
+            print(f"- {employee.address}")
+            print("")
 
